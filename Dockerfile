@@ -1,23 +1,25 @@
-# Use a Node.js base image
 FROM node:20-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Instala dependências do sistema para Prisma
+RUN apk add --no-cache openssl
 
-# Install dependencies
+# Copia arquivos de configuração
+COPY package*.json ./
+COPY tsconfig.json ./
+COPY prisma ./prisma
+
+# Instala dependências
 RUN npm install
 
-# Copy the rest of the application code
+# Copia o restante do código
 COPY . .
 
-# Build TypeScript code
+# Gera o cliente Prisma e compila TypeScript
+RUN npx prisma generate
 RUN npm run build
 
-# Expose application port (ajuste conforme necessário)
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "run dev"]
+CMD ["npm", "run", "dev"]
