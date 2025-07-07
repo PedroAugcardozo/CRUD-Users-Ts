@@ -8,9 +8,12 @@ export class UserModel{
         try{
             const createUser = await prisma.user.create({
                 data:{
-                    ...userData
+                    name: userData.name,
+                    email: userData.email,
+                    password: userData.password,
                 }
             })
+            return createUser
         }catch(error){
             console.log("erro ao criar a tabela")
             return error

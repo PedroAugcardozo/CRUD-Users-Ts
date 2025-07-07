@@ -6,15 +6,18 @@ const userModel = new UserModel();
                                                                        
 export class UserController{
 
-    async create(req: Request, res: Response): Promise<Response> {
+    async create(req: Request, res: Response) {
         const UserData = req.body as UserDTO;
         try{
             const newUser = await userModel.create(UserData)
+            if(!newUser){
+                return res.status(400).json({message: "Erro ao criar usuário"})
+            }
             return res.status(201).json(newUser)
         }
         catch(error){
             console.error("Error creating user:",error)
-            return res.status(500).json({message: "Erro ao criar usuário"})
+            return res.status(500).json({message: "Erro ao criar usuário" })
         }
     }
 
@@ -53,6 +56,7 @@ export class UserController{
             return res.status(500).json({message: "Erro ao atualizar usuário"})
         }
     }
+
     async deleteUser(req: Request, res: Response){
         const userId = parseInt(req.params.id)
         try{
@@ -81,12 +85,11 @@ export class UserController{
         }
     }
 }
-
+// URL: http://localhost:3000/api/
 /*
 req.body{
-    id: 01,
-    email: pedro@gmai.com,
-    senha: 123456,
-    data: 17/0602023
+    "name": "Pedro",
+    "email": "pedro@gmai.com",
+    "senha": "123456",
 }
 */
