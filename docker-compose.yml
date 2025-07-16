@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: api_user
+      POSTGRES_PASSWORD: api_password
+      POSTGRES_DB: crud_api_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U api_user -d crud_api_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Aplicação Node.js
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - DATABASE_URL=postgresql://api_user:api_password@db:5432/crud_api_db
+      - NODE_ENV=development
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "npm install &&
+             npx prisma generate &&
+             npx prisma migrate dev --name init &&
+             npm run dev"
+
+volumes:
+  postgres_data:
